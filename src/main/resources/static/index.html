@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>가계부 메인페이지</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 20px auto; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        input, button { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { background: #4CAF50; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #users-list { margin-top: 20px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .user-item { border-bottom: 1px solid #eee; padding: 5px 0; }
+    </style>
+</head>
+<body>
+<h1>가계부 회원 관리</h1>
+
+<form id="register-form">
+    <h2>회원가입</h2>
+    <input type="text" id="username" placeholder="아이디" required>
+    <input type="password" id="password" placeholder="비밀번호" required>
+    <input type="text" id="name" placeholder="이름" required>
+    <input type="tel" id="phone" placeholder="전화번호">
+    <input type="date" id="birthDate" placeholder="생년월일">
+    <button type="submit">회원가입</button>
+</form>
+
+<button id="load-users">전체 회원 조회</button>
+
+<div id="users-list"></div>
+
+<script>
+    const registerForm = document.getElementById('register-form');
+    const usersList = document.getElementById('users-list');
+    const loadUsersBtn = document.getElementById('load-users');
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            birthDate: document.getElementById('birthDate').value
+        };
+        const response = await fetch('/users/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (response.ok) { alert('회원가입 성공!'); registerForm.reset(); }
+        else { alert('회원가입 실패!'); }
+    });
+
+    loadUsersBtn.addEventListener('click', async () => {
+        const response = await fetch('/users/all');
+        const users = await response.json();
+        usersList.innerHTML = '<h3>회원 목록</h3>';
+        users.forEach(user => {
+            const div = document.createElement('div');
+            div.className = 'user-item';
+            div.textContent = `${user.id}. ${user.username} | ${user.name} | ${user.phone} | ${user.birthDate}`;
+            usersList.appendChild(div);
+        });
+    });
+</script>
+</body>
+</html>
